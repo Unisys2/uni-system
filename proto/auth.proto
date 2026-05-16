@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package auth;
+
+// Authentication & authorization service contract.
+service AuthService {
+  rpc Register    (RegisterRequest) returns (AuthReply);
+  rpc Login       (LoginRequest)    returns (AuthReply);
+  rpc VerifyToken (TokenRequest)    returns (User);
+  rpc GetProfile  (TokenRequest)    returns (User);
+}
+
+message RegisterRequest {
+  string name     = 1;
+  string email    = 2;
+  string password = 3;
+  string role     = 4; // student | professor | admin
+}
+
+message LoginRequest {
+  string email    = 1;
+  string password = 2;
+}
+
+message TokenRequest {
+  string token = 1;
+}
+
+message User {
+  string id    = 1;
+  string name  = 2;
+  string email = 3;
+  string role  = 4;
+}
+
+message AuthReply {
+  User   user  = 1;
+  string token = 2;
+}

@@ -1,0 +1,27 @@
+{
+  "name": "university-microservices",
+  "version": "1.0.0",
+  "description": "University Enrollment & Attendance Management System - microservices architecture",
+  "private": true,
+  "scripts": {
+    "auth": "node services/auth/index.js",
+    "student": "node services/student/index.js",
+    "course": "node services/course/index.js",
+    "payment": "node services/payment/index.js",
+    "attendance": "node services/attendance/index.js",
+    "gateway": "node gateway/index.js"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.11.0",
+    "@as-integrations/express5": "^1.1.0",
+    "@grpc/grpc-js": "^1.12.2",
+    "@grpc/proto-loader": "^0.7.13",
+    "bcryptjs": "^2.4.3",
+    "express": "^5.0.1",
+    "graphql": "^16.9.0",
+    "jsonwebtoken": "^9.0.2",
+    "kafkajs": "^2.2.4",
+    "rxdb": "^15.39.0",
+    "rxjs": "^7.8.1"
+  }
+}
