@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package attendance;
+
+// Attendance tracking service contract (QR-code check-in).
+service AttendanceService {
+  rpc CheckIn        (CheckInRequest) returns (AttendanceRecord);
+  rpc GetByStudent   (StudentId)      returns (StudentReport);
+  rpc GetByCourse    (CourseId)       returns (AttendanceList);
+}
+
+message StudentId { string student_id = 1; }
+message CourseId  { string course_id  = 1; }
+
+message CheckInRequest {
+  string student_id = 1;
+  string course_id  = 2;
+  string qr_code    = 3; // QR token shown by the professor's session
+}
+
+message AttendanceRecord {
+  string id         = 1;
+  string student_id = 2;
+  string course_id  = 3;
+  string timestamp  = 4;
+}
+
+message AttendanceList {
+  repeated AttendanceRecord records = 1;
+}
+
+message StudentReport {
+  string student_id              = 1;
+  int32  total_check_ins         = 2;
+  double attendance_percentage   = 3;
+  repeated AttendanceRecord records = 4;
+}

@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package student;
+
+// Student academic profile service contract.
+service StudentService {
+  rpc ListStudents  (Empty)                returns (StudentList);
+  rpc GetStudent    (StudentId)            returns (Student);
+  rpc UpdateStudent (UpdateStudentRequest) returns (Student);
+}
+
+message Empty {}
+
+message StudentId {
+  string id = 1;
+}
+
+message Student {
+  string id         = 1; // same id as the auth user
+  string name       = 2;
+  string email      = 3;
+  string department = 4;
+  string level      = 5; // L1 | L2 | L3 | M1 | M2
+  string status     = 6; // active | suspended | graduated
+}
+
+message UpdateStudentRequest {
+  string id         = 1;
+  string department = 2;
+  string level      = 3;
+  string status     = 4;
+}
+
+message StudentList {
+  repeated Student students = 1;
+}

@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package course;
+
+// Course catalog & enrollment service contract.
+service CourseService {
+  rpc CreateCourse         (CreateCourseRequest) returns (Course);
+  rpc ListCourses          (Empty)               returns (CourseList);
+  rpc GetCourse            (CourseId)             returns (Course);
+  rpc Enroll               (EnrollRequest)        returns (Enrollment);
+  rpc DropEnrollment       (EnrollmentId)         returns (Empty);
+  rpc ListEnrollmentsByStudent (StudentId)        returns (EnrollmentList);
+}
+
+message Empty {}
+
+message CourseId   { string id = 1; }
+message EnrollmentId { string id = 1; }
+message StudentId  { string student_id = 1; }
+
+message CreateCourseRequest {
+  string title    = 1;
+  string code     = 2;
+  int32  capacity = 3;
+  string semester = 4;
+  double tuition  = 5; // tuition fee for this course
+}
+
+message Course {
+  string id        = 1;
+  string title     = 2;
+  string code      = 3;
+  int32  capacity  = 4;
+  int32  enrolled  = 5; // current number of enrolled students
+  string semester  = 6;
+  double tuition   = 7;
+}
+
+message CourseList {
+  repeated Course courses = 1;
+}
+
+message EnrollRequest {
+  string student_id = 1;
+  string course_id  = 2;
+}
+
+message Enrollment {
+  string id         = 1;
+  string student_id = 2;
+  string course_id  = 3;
+  string status     = 4; // enrolled | dropped
+}
+
+message EnrollmentList {
+  repeated Enrollment enrollments = 1;
+}

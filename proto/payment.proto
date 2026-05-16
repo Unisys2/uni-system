@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package payment;
+
+// Tuition invoice & payment service contract.
+// Invoices are created automatically (Kafka: student.enrolled).
+// A client then pays an existing invoice through PayInvoice.
+service PaymentService {
+  rpc PayInvoice           (PayRequest) returns (Payment);
+  rpc GetPaymentsByStudent (StudentId)  returns (PaymentList);
+}
+
+message StudentId {
+  string student_id = 1;
+}
+
+message PayRequest {
+  string invoice_id = 1; // id of the invoice to pay
+}
+
+message Payment {
+  string id          = 1; // invoice id
+  string student_id  = 2;
+  string course_id   = 3;
+  double amount      = 4; // tuition after scholarship discount
+  string status      = 5; // pending | paid
+  string created_at  = 6;
+}
+
+message PaymentList {
+  repeated Payment payments = 1;
+}
