@@ -1,0 +1,80 @@
+# Runs the whole system: Kafka broker + 5 microservices + API Gateway.
+#   docker compose up --build
+#
+# All app containers share one image (built once) and differ only by `command`
+# and environment variables.
+
+services:
+
+  # --- Kafka broker (KRaft mode, no Zookeeper) ------------------------------
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: kafka
+    ports:
+      - "9092:9092"          # EXTERNAL listener, for local (non-Docker) runs
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: INTERNAL://:29092,CONTROLLER://:9093,EXTERNAL://:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+  # --- Microservices --------------------------------------------------------
+  auth:
+    build: .
+    command: node services/auth/index.js
+    environment:
+      KAFKA_BROKER: kafka:29092
+      JWT_SECRET: university_secret_change_me
+    depends_on: [kafka]
+
+  student:
+    build: .
+    command: node services/student/index.js
+    environment:
+      KAFKA_BROKER: kafka:29092
+    depends_on: [kafka]
+
+  course:
+    build: .
+    command: node services/course/index.js
+    environment:
+      KAFKA_BROKER: kafka:29092
+    depends_on: [kafka]
+
+  payment:
+    build: .
+    command: node services/payment/index.js
+    environment:
+      KAFKA_BROKER: kafka:29092
+    depends_on: [kafka]
+
+  attendance:
+    build: .
+    command: node services/attendance/index.js
+    environment:
+      KAFKA_BROKER: kafka:29092
+    depends_on: [kafka]
+
+  # --- API Gateway ----------------------------------------------------------
+  gateway:
+    build: .
+    command: node gateway/index.js
+    ports:
+      - "3000:3000"
+    environment:
+      KAFKA_BROKER: kafka:29092
+      JWT_SECRET: university_secret_change_me
+      AUTH_HOST: auth
+      STUDENT_HOST: student
+      COURSE_HOST: course
+      PAYMENT_HOST: payment
+      ATTENDANCE_HOST: attendance
+    depends_on: [auth, student, course, payment, attendance]
