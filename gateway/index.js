@@ -22,9 +22,20 @@ async function main() {
   app.use('/api', restRouter);
 
   // GraphQL interface.
+  // The context function extracts the Bearer token so resolvers that perform
+  // writes can authorize the caller against the Auth service.
   const apollo = new ApolloServer({ typeDefs, resolvers });
   await apollo.start();
-  app.use('/graphql', expressMiddleware(apollo));
+  app.use(
+    '/graphql',
+    expressMiddleware(apollo, {
+      context: async ({ req }) => {
+        const header = req.headers.authorization || '';
+        const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+        return { token };
+      },
+    }),
+  );
 
   app.listen(gatewayPort, () => {
     console.log(`[gateway] REST   -> http://localhost:${gatewayPort}/api`);
